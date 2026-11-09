@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trance EQ Templates</title>
+<meta name="description" content="Save unlimited custom equalizer templates for Audionic Trance earbuds and send them over Bluetooth.">
+<meta name="theme-color" content="#0b0e14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{
+  --bg:#0b0e14; --bg2:#121722; --card:rgba(255,255,255,.055); --line:rgba(255,255,255,.09);
+  --text:#eef2f8; --dim:#8f9bb0; --accent:#ff7a45; --accent2:#ffb36b; --good:#46d19a; --bad:#ff5d6c;
+  --r:18px;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f3f5f9; --bg2:#e9edf4; --card:rgba(255,255,255,.8); --line:rgba(20,30,50,.12); --text:#141a26; --dim:#5d6a80;}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{min-height:100vh;background:
+  radial-gradient(900px 500px at 85% -10%,rgba(255,122,69,.18),transparent 60%),
+  radial-gradient(700px 500px at -10% 30%,rgba(70,140,255,.12),transparent 60%),var(--bg);
+  padding:max(16px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom))}
+main{max-width:760px;margin:0 auto;display:grid;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 2px}
+h1{font-size:22px;margin:0;letter-spacing:-.02em}
+h1 small{display:block;font-size:12px;font-weight:500;color:var(--dim);letter-spacing:0}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);margin:0 0 12px;font-weight:650}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:10px 14px;min-height:44px;cursor:pointer;transition:transform .12s ease,background .2s ease,opacity .2s}
+button:active{transform:scale(.97)}
+button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a0d05;border:none}
+button.ghost{background:transparent}
+button.danger{color:var(--bad)}
+button:disabled{opacity:.4;cursor:not-allowed}
+input[type=text]{font:inherit;color:var(--text);background:rgba(127,127,127,.12);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:44px;width:100%}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:6px 11px;border-radius:99px;background:rgba(127,127,127,.14)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+.on .dot{background:var(--good);box-shadow:0 0 0 4px rgba(70,209,154,.18)}
+.warn .dot{background:var(--accent)}
+.bands{display:grid;gap:4px}
+.band{display:grid;grid-template-columns:58px 1fr 38px;gap:10px;align-items:center;min-height:40px}
+.band label{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.band output{font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;height:34px;-webkit-appearance:none;appearance:none;background:transparent;touch-action:pan-y}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(90deg,rgba(127,127,127,.3),rgba(127,127,127,.3))}
+input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:rgba(127,127,127,.3)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;margin-top:-10px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:3px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+.tpl{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.tpl:first-child{border-top:0}
+.tpl b{display:block;font-size:16px}
+.tpl .spark{display:flex;gap:2px;align-items:center;height:22px;margin-top:4px}
+.tpl .spark i{display:block;width:5px;border-radius:2px;background:var(--accent)}
+.tpl .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tpl .acts button{padding:8px 11px;min-height:38px;font-size:14px}
+.note{font-size:13px;color:var(--dim)}
+#log{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--dim);max-height:180px;overflow:auto;white-space:pre-wrap;margin:0}
+.banner{border-left:3px solid var(--accent);padding:10px 12px;border-radius:8px;background:rgba(255,122,69,.1);font-size:14px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Trance EQ Templates<small>For Audionic Trance earbuds</small></h1>
+    <span id="status" class="pill"><span class="dot"></span><span id="statusText">Not Connected</span></span>
+  </header>
+
+  <div id="unsupported" class="banner" hidden>
+    This browser cannot use Bluetooth. On iPhone, open this page in the free <b>Bluefy</b> browser. On Android or a computer, use Chrome.
+    You can still try everything below with <b>Demo Mode</b>.
+  </div>
+
+  <section class="card">
+    <h2>Earbuds</h2>
+    <div class="row">
+      <button id="connectBtn" class="primary">Connect</button>
+      <button id="demoBtn" class="ghost">Demo Mode</button>
+      <button id="disconnectBtn" class="ghost" hidden>Disconnect</button>
+      <span id="devName" class="note grow"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:6px">
+      <h2 style="margin:0">Equalizer</h2>
+      <span class="note" id="modeNote"></span>
+    </div>
+    <div id="bands" class="bands"></div>
+    <div class="row" style="margin-top:14px">
+      <button id="applyBtn" class="primary" disabled>Apply To Earbuds</button>
+      <button id="flatBtn" class="ghost">Reset To Flat</button>
+      <label class="note row" style="gap:6px"><input type="checkbox" id="liveChk"> Send while dragging</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>My Templates</h2>
+    <div class="row" style="margin-bottom:8px">
+      <div class="grow"><input id="tplName" type="text" placeholder="Template name, for example Gaming" maxlength="40" autocomplete="off"></div>
+      <button id="saveBtn" class="primary">Save Current</button>
+    </div>
+    <div id="tplList"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="exportBtn" class="ghost">Export All</button>
+      <button id="importBtn" class="ghost">Import</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+      <span class="note">Templates are stored on this device only.</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Activity</h2>
+    <pre id="log" aria-live="polite"></pre>
+  </section>
+</main>
+<script src="rcsp.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
