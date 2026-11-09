@@ -21,6 +21,9 @@
     dynamic: false,
     connected: false,
     dragging: false,
+    phase: 'idle',
+    activeTpl: null,
+    phaseTimer: null,
     templates: [],
   };
 
@@ -101,6 +104,23 @@
   }
   const clamp = (v) => Math.max(GAIN_MIN, Math.min(GAIN_MAX, Math.round(v)));
 
+  // idle | dirty | applying | applied | failed
+  function setPhase(phase, text) {
+    state.phase = phase;
+    const el = $('applyState');
+    el.textContent = text || '';
+    el.dataset.phase = phase;
+    const btn = $('applyBtn');
+    btn.textContent = phase === 'applying' ? 'Applying...' : phase === 'applied' ? 'Applied' : phase === 'failed' ? 'Failed, Try Again' : 'Apply To Earbuds';
+    btn.dataset.phase = phase;
+    btn.disabled = !state.connected || phase === 'applying';
+    clearTimeout(state.phaseTimer);
+    if (phase === 'applied') {
+      state.phaseTimer = setTimeout(() => { if (state.phase === 'applied') setPhase('applied-idle', 'On your earbuds now'); }, 2200);
+    }
+    renderTemplates();
+  }
+
   function renderTemplates() {
     const box = $('tplList');
     box.textContent = '';
@@ -123,6 +143,13 @@
         const i = document.createElement('i');
         i.style.height = 3 + ((g - GAIN_MIN) / (GAIN_MAX - GAIN_MIN)) * 19 + 'px';
         spark.appendChild(i);
+      }
+      if (t.id === state.activeTpl && state.phase !== 'idle' && state.phase !== 'dirty') {
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.dataset.phase = state.phase;
+        badge.textContent = state.phase === 'applying' ? 'Applying...' : state.phase === 'failed' ? 'Failed' : 'Applied';
+        name.append(' ', badge);
       }
       left.append(name, spark);
       const acts = document.createElement('div');
@@ -155,7 +182,9 @@
 
   async function useTemplate(t, send) {
     state.gains = resample(t.gains, state.freqs.length).map(clamp);
+    state.activeTpl = t.id;
     renderBands();
+    if (!send) setPhase('dirty', 'Loaded, not sent to the earbuds yet');
     log('Loaded template "' + t.name + '"');
     if (send) await applyEq();
   }
@@ -181,6 +210,8 @@
       out.textContent = fmt(rng.value);
       rng.addEventListener('input', () => {
         state.gains[i] = Number(rng.value);
+        state.activeTpl = null;
+        if (!$('liveChk').checked && state.phase !== 'applying') setPhase('dirty', 'Changed, not sent to the earbuds yet');
         out.textContent = fmt(rng.value);
         if ($('liveChk').checked) liveSend();
       });
@@ -260,18 +291,22 @@
   }
 
   async function applyEq(quiet) {
-    if (!state.connected) return;
+    if (!state.connected || state.phase === 'applying') return;
     const gains = state.gains.map(clamp);
+    setPhase('applying', 'Sending to the earbuds...');
     try {
       const resp = await request((sn) => R.buildSetEq(sn, R.MODE_CUSTOM, gains, state.dynamic), 'Apply');
       if (resp.status === 0) {
         if (!quiet) log('Sent to earbuds: ' + gains.map(fmt).join(' '));
         $('modeNote').textContent = 'Earbuds EQ mode: Custom';
+        setPhase('applied', 'Applied. The earbuds accepted it');
       } else {
         log('Earbuds refused the change (status ' + resp.status + ').');
+        setPhase('failed', 'The earbuds refused it (status ' + resp.status + ')');
       }
     } catch (e) {
       log('Apply failed: ' + e.message);
+      setPhase('failed', 'No answer from the earbuds. Check the connection and try again');
     }
   }
 
@@ -285,7 +320,7 @@
   async function afterConnect() {
     state.connected = true;
     $('connectBtn').hidden = true; $('demoBtn').hidden = true; $('disconnectBtn').hidden = false;
-    $('applyBtn').disabled = false;
+    setPhase('idle', '');
     setStatus('on', 'Connected');
     // handshake
     const ok = await new Promise(async (resolve) => {
@@ -309,7 +344,7 @@
     state.parser = new R.FrameParser();
     state.pending.clear();
     $('connectBtn').hidden = false; $('demoBtn').hidden = false; $('disconnectBtn').hidden = true;
-    $('applyBtn').disabled = true;
+    setPhase('idle', '');
     $('devName').textContent = '';
     setStatus('', 'Not Connected');
     log('Disconnected.');

@@ -62,6 +62,17 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .note{font-size:13px;color:var(--dim)}
 #log{font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--dim);max-height:180px;overflow:auto;white-space:pre-wrap;margin:0}
 .banner{border-left:3px solid var(--accent);padding:10px 12px;border-radius:8px;background:rgba(255,122,69,.1);font-size:14px}
+.state{font-size:13px;font-weight:600;color:var(--dim)}
+.state[data-phase=applying]{color:var(--accent)}
+.state[data-phase=applied],.state[data-phase=applied-idle]{color:var(--good)}
+.state[data-phase=failed]{color:var(--bad)}
+.state[data-phase=dirty]{color:var(--accent2)}
+#applyBtn[data-phase=applied]{background:var(--good)}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:99px;margin-left:4px;vertical-align:middle;background:rgba(127,127,127,.2);color:var(--dim)}
+.badge[data-phase=applied]{background:rgba(70,209,154,.2);color:var(--good)}
+.badge[data-phase=applying]{background:rgba(255,122,69,.2);color:var(--accent);animation:pulse 1s ease-in-out infinite}
+.badge[data-phase=failed]{background:rgba(255,93,108,.2);color:var(--bad)}
+@keyframes pulse{50%{opacity:.45}}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
@@ -96,6 +107,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
     <div id="bands" class="bands"></div>
     <div class="row" style="margin-top:14px">
       <button id="applyBtn" class="primary" disabled>Apply To Earbuds</button>
+      <span id="applyState" class="state" role="status" aria-live="polite"></span>
       <button id="flatBtn" class="ghost">Reset To Flat</button>
       <label class="note row" style="gap:6px"><input type="checkbox" id="liveChk"> Send while dragging</label>
     </div>
@@ -121,7 +133,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
     <pre id="log" aria-live="polite"></pre>
   </section>
 </main>
-<script src="rcsp.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="rcsp.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
