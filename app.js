@@ -54,13 +54,37 @@
     catch (e) { log('Could not save templates on this browser (storage blocked).'); }
   }
   const uid = () => Math.random().toString(36).slice(2, 10);
+  // Built-in curves are written for 10 bands (31 Hz to 16 kHz) and stretched
+  // to however many bands the earbuds report. Order = order shown in the list.
+  const SEED_VERSION = 2;
+  const SEEDS = [
+    { name: 'Best All-Round (Start Here)', gains: [6, 5, 3, 0, -1, -1, 1, 3, 4, 3] },
+    { name: 'Bass + Clear Vocals', gains: [6, 5, 3, 1, 0, 2, 3, 3, 2, 1] },
+    { name: 'Deep Bass', gains: [8, 8, 6, 3, 1, 0, 0, 0, 1, 1] },
+    { name: 'Studio Clarity', gains: [2, 1, 0, -1, 0, 1, 2, 3, 3, 2] },
+    { name: 'Gaming Footsteps', gains: [2, 1, 0, -1, -1, 1, 4, 5, 3, 1] },
+    { name: 'Podcast Voice', gains: [-4, -3, -1, 1, 3, 4, 3, 1, 0, -2] },
+    { name: 'Flat', gains: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+  ];
+  // first install: everything. Later versions: only add built-ins that are missing,
+  // and swap the two weak v1 starters, never touching templates you made yourself.
   function seedTemplates() {
-    return [
-      { id: uid(), name: 'Flat', gains: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
-      { id: uid(), name: 'Bass Boost', gains: [7, 6, 5, 3, 1, 0, 0, 0, 0, 0] },
-      { id: uid(), name: 'Vocal Boost', gains: [-2, -2, -1, 0, 2, 4, 4, 2, 0, -1] },
-      { id: uid(), name: 'Treble Lift', gains: [0, 0, 0, 0, 0, 1, 3, 5, 6, 6] },
-    ];
+    return SEEDS.map((t) => ({ id: uid(), name: t.name, gains: t.gains.slice(), builtin: true }));
+  }
+  function upgradeTemplates(list) {
+    let ver = 0;
+    try { ver = Number(localStorage.getItem(STORE_KEY + '-seed')) || 0; } catch (e) { /* ignore */ }
+    if (ver >= SEED_VERSION) return list;
+    const oldV1 = {
+      'Bass Boost': '7,6,5,3,1,0,0,0,0,0',
+      'Vocal Boost': '-2,-2,-1,0,2,4,4,2,0,-1',
+      'Treble Lift': '0,0,0,0,0,1,3,5,6,6',
+    };
+    list = list.filter((t) => !(oldV1[t.name] && t.gains.join(',') === oldV1[t.name]));
+    const have = new Set(list.map((t) => t.name.toLowerCase()));
+    const fresh = SEEDS.filter((t) => !have.has(t.name.toLowerCase()))
+      .map((t) => ({ id: uid(), name: t.name, gains: t.gains.slice(), builtin: true }));
+    return fresh.concat(list);
   }
   // stretch or squeeze a curve to a different number of bands
   function resample(arr, n) {
@@ -376,8 +400,11 @@
   function init() {
     if (!('bluetooth' in navigator)) $('unsupported').hidden = false;
     let saved = loadTemplates();
-    if (!saved) { saved = seedTemplates(); state.templates = saved; saveTemplates(); }
+    if (!saved) saved = seedTemplates();
+    else saved = upgradeTemplates(saved);
     state.templates = saved;
+    saveTemplates();
+    try { localStorage.setItem(STORE_KEY + '-seed', String(SEED_VERSION)); } catch (e) { /* ignore */ }
     renderBands();
     renderTemplates();
 
